@@ -1,0 +1,60 @@
+<head>
+    <script src="opengl-canvas.js" defer></script>
+</head>
+<body>
+    <input
+            id="imageInput"
+            type="file"
+            accept="image/*"
+            >
+
+            <opengl-canvas
+                    id="mycanvas"
+                    vertex-shader="/shaders/texture.vert"
+                    fragment-shader="/shaders/8colors-texture.frag">
+            </opengl-canvas>
+
+    <script>
+        const mycanvas = document.getElementById("mycanvas");
+        mycanvas.addEventListener("ready", () => {
+            mycanvas.vertexData = {
+                data: [
+                    // position    // UV
+                    -1, -1,         0, 0,
+                    1, -1,         1, 0,
+                    -1,  1,         0, 1,
+
+                    -1,  1,         0, 1,
+                    1, -1,         1, 0,
+                    1,  1,         1, 1
+                ],
+
+                attributes: [
+                    { name: "pos", size: 2 },
+                    { name: "uv", size: 2 }
+                ]
+            };
+        });
+        const imageInput = document.getElementById("imageInput");
+
+        imageInput.addEventListener("change", async () => {
+            const file = imageInput.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const image = new Image();
+
+            image.src = URL.createObjectURL(file);
+
+            await image.decode();
+
+            mycanvas.textureData = image;
+
+            mycanvas.draw();
+
+            URL.revokeObjectURL(image.src);
+        });
+    </script>
+</body>
