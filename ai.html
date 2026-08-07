@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<head>
+    <script src="opengl-canvas.js" defer></script>
+    </script>
+</head>
+<body>
+    <opengl-canvas id="myopenglcanvas"
+            vertex-shader="/shaders/vert.glsl"
+            fragment-shader="/shaders/frag.glsl">
+    </opengl-canvas>
+    <script>
+        const gl = document.getElementById("myopenglcanvas");
+
+        gl.addEventListener("ready", () => {
+            gl.vertexData = {
+                data: [
+                    -0.5, -0.5,
+                    0.5, -0.5,
+                    0.0,  0.5
+                ],
+                attribute: "pos",
+                size: 2
+            };
+
+            gl.draw();
+        });
+    </script>
+</body>
