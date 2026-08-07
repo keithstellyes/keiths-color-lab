@@ -75,8 +75,6 @@ class OpenGLCanvas extends HTMLElement {
     }) {
         const gl = this.gl;
 
-        // Either a single interleaved attribute ({ attribute, size }) or
-        // several of them ({ attributes: [{ name, size }, ...] }).
         const layout = attributes ?? [{ name: attribute, size }];
 
         const vertices = data instanceof Float32Array
@@ -166,8 +164,7 @@ class OpenGLCanvas extends HTMLElement {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-        // Flip images vertically so their coordinate system
-        // matches the usual WebGL texture coordinate convention.
+        // Images have y=0 at top, but in webgl that is bottom
         gl.pixelStorei(
             gl.UNPACK_FLIP_Y_WEBGL,
             true
