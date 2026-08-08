@@ -5,8 +5,8 @@ class OpenGLCanvas extends HTMLElement {
         const shadow = this.attachShadow({ mode: "open" });
 
         this.canvas = document.createElement("canvas");
-        this.canvas.width = 640;
-        this.canvas.height = 480;
+        this.canvas.width = 310;
+        this.canvas.height = 310;
         shadow.appendChild(this.canvas);
         const styleEl = document.createElement("style");
         styleEl.innerText = `

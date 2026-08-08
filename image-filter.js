@@ -24,10 +24,16 @@ class ImageFilter extends OpenGLCanvas {
         const styleElement = document.createElement("style");
         styleElement.innerText = `
             :host {
-                display: inline-block;
+                /*display: inline-block;*/
+                display: flex;
+                flex-direction: column;
                 border: 1px solid black;
+                background-color: white;
+                height: 420px;
+                width: 350px;
+                flex-shrink: 0;
+                gap: 0;
             }
-
             canvas {
                 cursor: pointer;
             }
@@ -42,6 +48,9 @@ class ImageFilter extends OpenGLCanvas {
         imageInput.type = "file";
         imageInput.accept = "image/*";
         this.shadowRoot.prepend(imageInput);
+        const titleEl = document.createElement("h1");
+        titleEl.innerText = this.getAttribute("title") || "Click to upload image";
+        this.shadowRoot.append(titleEl);
 
         this.canvas.title = "Click to choose an image";
         this.canvas.addEventListener("click", () => imageInput.click());
