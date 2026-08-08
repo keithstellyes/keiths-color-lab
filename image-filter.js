@@ -21,11 +21,20 @@ class ImageFilter extends OpenGLCanvas {
                 ]
             };
         });
+        const styleElement = document.createElement("style");
+        styleElement.innerText = `
+            :host {
+                display: inline-block;
+                border: 1px solid black;
+            }
+
+                    `;
+        this.shadowRoot.appendChild(styleElement);
         const imageInput = document.createElement("input");
         imageInput.id = "imageInput";
         imageInput.type = "file";
         imageInput.accept = "image/*";
-        this.shadowRoot.appendChild(imageInput);
+        this.shadowRoot.prepend(imageInput);
 
         imageInput.addEventListener("change", async () => {
             const file = imageInput.files[0];

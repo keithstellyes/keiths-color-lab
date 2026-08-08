@@ -8,6 +8,13 @@ class OpenGLCanvas extends HTMLElement {
         this.canvas.width = 640;
         this.canvas.height = 480;
         shadow.appendChild(this.canvas);
+        const styleEl = document.createElement("style");
+        styleEl.innerText = `
+            :host {
+                display: inline-block;
+            }
+        `;
+        shadow.appendChild(styleEl);
 
         this.gl = this.canvas.getContext("webgl2");
 
