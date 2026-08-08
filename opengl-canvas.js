@@ -1,8 +1,4 @@
 class OpenGLCanvas extends HTMLElement {
-    static get observedAttributes() {
-        return ["vertex-shader", "fragment-shader"];
-    }
-
     constructor() {
         super();
 
@@ -30,12 +26,6 @@ class OpenGLCanvas extends HTMLElement {
 
     connectedCallback() {
         this.#loadShaders();
-    }
-
-    attributeChangedCallback() {
-        if (this.isConnected) {
-            this.#loadShaders();
-        }
     }
 
     async #loadShaders() {

@@ -1,32 +1,56 @@
-class ImageFilter extends HTMLElement {
-  constructor() {
-    super(); // Always call super() first to establish the prototype chain
+class ImageFilter extends OpenGLCanvas {
+    constructor() {
+        super();
 
-    // Attach a shadow DOM to encapsulate your component styles and markup
-    this.attachShadow({ mode: 'open' });
-  }
+        this.addEventListener("ready", () => {
+            this.vertexData = {
+                data: [
+                    // position    // UV
+                    -1, -1,         0, 0,
+                    1, -1,         1, 0,
+                    -1,  1,         0, 1,
 
-  // Runs automatically when the element is added to the webpage
-  connectedCallback() {
-    const title = this.getAttribute('title') || '';
+                    -1,  1,         0, 1,
+                    1, -1,         1, 0,
+                    1,  1,         1, 1
+                ],
 
-    this.shadowRoot.innerHTML = `
-      <style>
-        .image-filter-div {
-          border-radius: 5px;
-          border: 5px solid #0076ff;
-        }
-        h3 { color: #333; margin: 0 0 10px 0; }
-      </style>
-      <div class="image-filter-div">
-          <h1>${title}</h1>
-          <canvas>
-          </canvas>
-      </div>
-    `;
-  }
+                attributes: [
+                    { name: "pos", size: 2 },
+                    { name: "uv", size: 2 }
+                ]
+            };
+        });
+        const imageInput = document.createElement("input");
+        imageInput.id = "imageInput";
+        imageInput.type = "file";
+        imageInput.accept = "image/*";
+        this.shadowRoot.appendChild(imageInput);
+
+        imageInput.addEventListener("change", async () => {
+            const file = imageInput.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const image = new Image();
+
+            image.src = URL.createObjectURL(file);
+
+            await image.decode();
+
+            this.textureData = image;
+
+            this.draw();
+
+            URL.revokeObjectURL(image.src);
+        });
+
+    }
+    connectedCallback() {
+        super.connectedCallback();
+    }
 }
 
-// Register the custom element tag with the browser
 customElements.define('image-filter', ImageFilter);
-
