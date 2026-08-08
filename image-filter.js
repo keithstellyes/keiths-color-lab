@@ -28,6 +28,13 @@ class ImageFilter extends OpenGLCanvas {
                 border: 1px solid black;
             }
 
+            canvas {
+                cursor: pointer;
+            }
+
+            #imageInput {
+                display: none;
+            }
                     `;
         this.shadowRoot.appendChild(styleElement);
         const imageInput = document.createElement("input");
@@ -35,6 +42,9 @@ class ImageFilter extends OpenGLCanvas {
         imageInput.type = "file";
         imageInput.accept = "image/*";
         this.shadowRoot.prepend(imageInput);
+
+        this.canvas.title = "Click to choose an image";
+        this.canvas.addEventListener("click", () => imageInput.click());
 
         imageInput.addEventListener("change", async () => {
             const file = imageInput.files[0];
@@ -54,6 +64,9 @@ class ImageFilter extends OpenGLCanvas {
             this.draw();
 
             URL.revokeObjectURL(image.src);
+
+            // So picking the same file twice still fires "change"
+            imageInput.value = "";
         });
 
     }
