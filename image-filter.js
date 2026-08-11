@@ -23,12 +23,14 @@ class ImageFilter extends OpenGLCanvas {
         });
         const styleElement = document.createElement("style");
         styleElement.innerText = `
+            @import url('https://googleapis.com');
             :host {
                 /*display: inline-block;*/
                 display: flex;
                 flex-direction: column;
                 border: 1px solid black;
                 background-color: white;
+                /* https://www.template.net/graphic-design/polaroid-sizes/ */
                 height: 420px;
                 width: 350px;
                 flex-shrink: 0;
@@ -36,8 +38,17 @@ class ImageFilter extends OpenGLCanvas {
             }
             canvas {
                 cursor: pointer;
+                flex: none;
+                align-self: center;
+                margin-top: 11px;
             }
 
+            h1 {
+              font-family: 'Kalam', cursive;
+              font-weight: 700;
+              /* distance between edge and start of photo proper*/
+              margin-left: 40px;
+            }
             #imageInput {
                 display: none;
             }
@@ -48,9 +59,9 @@ class ImageFilter extends OpenGLCanvas {
         imageInput.type = "file";
         imageInput.accept = "image/*";
         this.shadowRoot.prepend(imageInput);
-        const titleEl = document.createElement("h1");
-        titleEl.innerText = this.getAttribute("title") || "Click to upload image";
-        this.shadowRoot.append(titleEl);
+        this.titleEl = document.createElement("h1");
+        this.titleEl.innerText = this.getAttribute("title") || "Click to upload image";
+        this.shadowRoot.append(this.titleEl);
 
         this.canvas.title = "Click to choose an image";
         this.canvas.addEventListener("click", () => imageInput.click());
@@ -61,23 +72,24 @@ class ImageFilter extends OpenGLCanvas {
             if (!file) {
                 return;
             }
-
+            const stripped = file.name.indexOf('.') == -1
+                ? file.name
+                : file.name.substr(0, file.name.indexOf('.'));
+            this.setTitle(stripped);
             const image = new Image();
-
             image.src = URL.createObjectURL(file);
-
             await image.decode();
-
             this.textureData = image;
-
             this.draw();
-
             URL.revokeObjectURL(image.src);
 
             // So picking the same file twice still fires "change"
             imageInput.value = "";
         });
 
+    }
+    setTitle(title) {
+        this.titleEl.innerText = title;
     }
     connectedCallback() {
         super.connectedCallback();
