@@ -5,19 +5,18 @@ class ImageFilter extends OpenGLCanvas {
         this.addEventListener("ready", () => {
             this.vertexData = {
                 data: [
-                    // position    // UV
-                    -1, -1,         0, 0,
-                    1, -1,         1, 0,
-                    -1,  1,         0, 1,
+                    // position
+                    -1, -1,
+                    1, -1,
+                    -1,  1,
 
-                    -1,  1,         0, 1,
-                    1, -1,         1, 0,
-                    1,  1,         1, 1
+                    -1,  1,
+                    1, -1,
+                    1,  1
                 ],
 
                 attributes: [
-                    { name: "pos", size: 2 },
-                    { name: "uv", size: 2 }
+                    { name: "pos", size: 2 }
                 ]
             };
         });
