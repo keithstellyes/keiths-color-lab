@@ -34,8 +34,7 @@
     There's a few ways we can improve this.
     <ul>
         <li>1. Red, green, and blue are not all just as sensitive to human eyes.</li>
-        <li>2. 0.5 currently is <i>not</i> half of perceived brightness from humans <cite-intext>https://surma.dev/things/ditherpunk/</cite-intext></li>
-        <li>3. We can try dithering to simulate colors in-between</li>
+        <li>2. We can try dithering to simulate colors in-between</li>
         Let's go through these one-by-one.
     </ul>
     </p>
@@ -46,6 +45,16 @@
 
         <image-filter vertex-shader="/shaders/texture.vert"
                       fragment-shader="/shaders/1bit-grayscale-2020.frag">
+        </image-filter>
+    </p>
+    <p>
+        Second point is dithering. If you want to go deep into it, there's an excellent article by someone who goes by the name of <i>Surma</i> entitled,
+        <a href="https://surma.dev/things/ditherpunk/"><i>Ditherpunk — The article I wish I had about monochrome image dithering</i></a>. But for now,
+        you can accept dithering is where we alternate between off and on in a "gray" region to approximate that in-between color.
+        We can get more clever, but for now here's a naive "random" dither, where we adjust the prior algorithm, but add a random adjustment of +-.5 to each y.
+
+        <image-filter vertex-shader="/shaders/texture.vert"
+                      fragment-shader="/shaders/1bit-grayscale-2020-random-dither.frag">
         </image-filter>
 
     </p>
