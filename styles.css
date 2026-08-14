@@ -1,0 +1,14 @@
+.callout {
+    background-color: #eeeeee;
+    width: fit-content;
+    padding: 10px;
+    font-weight: bold;
+}
+
+p {
+    max-width: 600px;
+}
+
+.math-text {
+    font-family: math, serif;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8"></meta>
+    <script src="/opengl-canvas.js" defer></script>
+    <script src="/image-filter.js" defer></script>
+    <!-- needed for image-filter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <p>
+        I'm Keith, and this is my color lab. I've long been fascinated by color.
+        How can something that appears to have multiple dimensions fit into simple "more or less
+        wave lengths?".
+    </p>
+    <p>
+        I also am interested in information theory. In particular, how can we represent the infinite world
+        in finite bits. Please, come into my lab. Pardon me if it's a bit <i>lived in</i>.
+    </p>
+    <p>
+        Thank you. The primary question I want to focus on is:
+    </p>
+    <!-- TODO implement callout CSS -->
+    <p class="callout">
+        What is the minimum number of bits to represent all visible colors?
+    </p>
+    <p>
+        Now, someone who wants to provide an answer, but is not so curious, they can search on Google, and
+        pop up with numbers like 1-10 million are the total distinct colors visislbe to humans
+        and thus the answer at an upper-bound would be
+        <span class="math-text">⌈log₂(10 million)⌉ = 24</span> bits.
+    </p>
+    <p>
+        Of course, this is an interesting figure. Historically systems with 24-bit color, 8 bits for red,
+        8 for green, 8 for blue, called themselves "True Color" systems. <i>(TODO: WHICH?)</i>
+        Many readers are likely already familiar with these sorts of colors if they use things like HTML or
+        other color systems. RGB! #FFFFFF for white, #FF0000 for red, #000000 for black, and so on.
+    </p>
+    <image-filter vertex-shader="/shaders/texture.vert"
+                  fragment-shader="/shaders/texture.frag">
+    </image-filter>
+</body>
