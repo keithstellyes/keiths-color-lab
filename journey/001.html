@@ -16,8 +16,8 @@
     But how do we do that? Let's try a simple naive algorithm. For this case,
     we assume our pixels are three-tuples of red, green, blue in the range 0.0 ... 1.0.
     It's what graphics code sometimes like.
-    </p>
-    <p>
+    </br>
+    </br>
     <b>Naive 1-bit grayscale</b></br>
     Every pixel is either white or black based on a given <i>in</i> pixel.</br>
     \(y = \frac{in.red + in.green + in.blue}{3} \) </br>
@@ -39,25 +39,25 @@
     </ul>
     </p>
     <p>
-        Let's talk about red, green, and blue sensitivity. They are not all just as sensitive. Different co-efficients are applied to them.
-        (TODO: write more)
-        For now, let's multiply by red by 0.2627 green by 0.6780 blue by 0.0593 per ITU-R Rec. 2020.
+    Let's talk about red, green, and blue sensitivity. They are not all just as sensitive. Different co-efficients are applied to them.
+    (TODO: write more)
+    For now, let's multiply by red by 0.2627 green by 0.6780 blue by 0.0593 per ITU-R Rec. 2020.
 
-        <image-filter vertex-shader="/shaders/texture.vert"
-                      fragment-shader="/shaders/1bit-grayscale-2020.frag">
-        </image-filter>
     </p>
+    <image-filter vertex-shader="/shaders/texture.vert"
+                  fragment-shader="/shaders/1bit-grayscale-2020.frag">
+    </image-filter>
+
     <p>
-        Second point is dithering. If you want to go deep into it, there's an excellent article by someone who goes by the name of <i>Surma</i> entitled,
-        <a href="https://surma.dev/things/ditherpunk/"><i>Ditherpunk — The article I wish I had about monochrome image dithering</i></a>. But for now,
-        you can accept dithering is where we alternate between off and on in a "gray" region to approximate that in-between color.
-        We can get more clever, but for now here's a naive "random" dither, where we adjust the prior algorithm, but add a random adjustment of +-.5 to each y.
-
-        <image-filter vertex-shader="/shaders/texture.vert"
-                      fragment-shader="/shaders/1bit-grayscale-2020-random-dither.frag">
-        </image-filter>
-
+    Second point is dithering. If you want to go deep into it, there's an excellent article by someone who goes by the name of <i>Surma</i> entitled,
+    <a href="https://surma.dev/things/ditherpunk/"><i>Ditherpunk — The article I wish I had about monochrome image dithering</i></a>. But for now,
+    you can accept dithering is where we alternate between off and on in a "gray" region to approximate that in-between color.
+    We can get more clever, but for now here's a naive "random" dither, where we adjust the prior algorithm, but add a random adjustment of +- to each y.
     </p>
+    <image-filter vertex-shader="/shaders/texture.vert"
+                  fragment-shader="/shaders/1bit-grayscale-2020-random-dither.frag">
+    </image-filter>
+
     <next-page>
         001.html
     </next-page>
