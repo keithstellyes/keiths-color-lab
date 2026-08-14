@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8"></meta>
-    <script src="/opengl-canvas.js" defer></script>
-    <script src="/image-filter.js" defer></script>
+    <script src="/components/opengl-canvas.js" defer></script>
+    <script src="/components/image-filter.js" defer></script>
+    <script src="/components/citations.js" defer></script>
     <!-- needed for image-filter -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
     <link rel="stylesheet" href="/styles.css">
@@ -32,11 +33,15 @@
     </p>
     <p>
         Of course, this is an interesting figure. Historically systems with 24-bit color, 8 bits for red,
-        8 for green, 8 for blue, called themselves "True Color" systems. <i>(TODO: WHICH?)</i>
+        8 for green, 8 for blue, called themselves "True Color" systems.
+        As of 2018, most screens were 24-bit "True Color" systems.
+        <cite-intext>Cianci, L. (2023) <i>Colour Theory: Understanding and Working with Colour</i>. RMIT Open Press <a href="https://rmit.pressbooks.pub/colourtheory1">&lt;https://rmit.pressbooks.pub/colourtheory1&gt;</a></cite-intext>
         Many readers are likely already familiar with these sorts of colors if they use things like HTML or
         other color systems. RGB! #FFFFFF for white, #FF0000 for red, #000000 for black, and so on.
     </p>
     <image-filter vertex-shader="/shaders/texture.vert"
                   fragment-shader="/shaders/texture.frag">
     </image-filter>
+
+    <cite-biblio></cite-biblio>
 </body>
