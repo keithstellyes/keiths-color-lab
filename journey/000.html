@@ -4,44 +4,68 @@
     <script src="/components/opengl-canvas.js" defer></script>
     <script src="/components/image-filter.js" defer></script>
     <script src="/components/citations.js" defer></script>
+    <script src="/components/page-controls.js" defer></script>
     <!-- needed for image-filter -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <p>
-        I'm Keith, and this is my color lab. I've long been fascinated by color.
-        How can something that appears to have multiple dimensions fit into simple "more or less
-        wave lengths?".
+    I'm Keith, and this is my color lab. I've long been fascinated by color.
+    How can something that appears to have multiple dimensions fit into simple "more or less
+    wave lengths?".
     </p>
     <p>
-        I also am interested in information theory. In particular, how can we represent the infinite world
-        in finite bits. Please, come into my lab. Pardon me if it's a bit <i>lived in</i>.
+    I also am interested in information theory. In particular, how can we represent the infinite world
+    in finite bits. Please, come into my lab. Pardon me if it's a bit <i>lived in</i>.
     </p>
     <p>
-        Thank you. The primary question I want to focus on is:
+    Thank you. The primary question I want to focus on is:
     </p>
     <!-- TODO implement callout CSS -->
     <p class="callout">
-        What is the minimum number of bits to represent all visible colors?
+    What is the minimum number of bits to represent all visible colors?
     </p>
     <p>
-        Now, someone who wants to provide an answer, but is not so curious, they can search on Google, and
-        pop up with numbers like 1-10 million are the total distinct colors visislbe to humans
-        and thus the answer at an upper-bound would be
-        <span class="math-text">⌈log₂(10 million)⌉ = 24</span> bits.
+    Now, someone who wants to provide an answer, but is not so curious, they can search on Google, and
+    pop up with numbers like 1-10 million are the total distinct colors visislbe to humans
+    and thus the answer at an upper-bound would be
+    <span class="math-text">⌈log₂(10 million)⌉ = 24</span> bits.
     </p>
     <p>
-        Of course, this is an interesting figure. Historically systems with 24-bit color, 8 bits for red,
-        8 for green, 8 for blue, called themselves "True Color" systems.
-        As of 2018, most screens were 24-bit "True Color" systems.
-        <cite-intext>Cianci, L. (2023) <i>Colour Theory: Understanding and Working with Colour</i>. RMIT Open Press <a href="https://rmit.pressbooks.pub/colourtheory1">&lt;https://rmit.pressbooks.pub/colourtheory1&gt;</a></cite-intext>
-        Many readers are likely already familiar with these sorts of colors if they use things like HTML or
-        other color systems. RGB! #FFFFFF for white, #FF0000 for red, #000000 for black, and so on.
+    Of course, this is an interesting figure. Historically systems with 24-bit color, 8 bits for red,
+    8 for green, 8 for blue, often called themselves "True Color" systems
+    <cite-intext>
+        Having a hard time finding good sources for true color=24 bits as most sources seem to take this fact for granted.
+        Wikipedia takes it for granted, and my Windows 95 install instead of a 24 bit mode, has 32 bits for "True Color",
+        which Google AI says uses an extra byte for padding, which makes sense.
+    </cite-intext>.
+    As of 2018, most screens were 24-bit "True Color" systems
+    <cite-intext>
+        Cianci, L. (2023) <i>Colour Theory: Understanding and Working with Colour</i>.
+        RMIT Open Press <a href="https://rmit.pressbooks.pub/colourtheory1">&lt;https://rmit.pressbooks.pub/colourtheory1&gt;</a>
+    </cite-intext>.
+    Many readers are likely already familiar with these sorts of colors if they use things like HTML or
+    other color systems. RGB! #FFFFFF for white, #FF0000 for red, #000000 for black, and so on.
+    </p>
+    <p>
+    There are still challenges to the 10 million number figure however for being too low. I think there's another interesting question that is begging to be asked:
+    <i>How efficiently can we represent color for an acceptable result?</i>
+    Before we begin, familiarize yourself with a staple of a by-gone era, brought into our modern era.
+    Normally, similar guides and apps will provide images for you. I thought it would be fun for this to be more
+    <i>interactive</i>. What fun is a lab where you can't break things?
+    Upload an image below to see it in action!
     </p>
     <image-filter vertex-shader="/shaders/texture.vert"
                   fragment-shader="/shaders/texture.frag">
     </image-filter>
+    <p>
+    Ok, maybe it isn't <i>that</i> interesting, yet. But we gotta start somewhere :)
+    </p>
+    <next-page>
+        001.html
+    </next-page>
 
+    <hr></hr>
     <cite-biblio></cite-biblio>
 </body>

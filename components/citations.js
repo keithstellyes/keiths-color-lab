@@ -13,7 +13,7 @@ class CiteInText extends HTMLElement {
         shadow.appendChild(styleEl);
         const spanEl = document.createElement("span");
         CITATIONS.push(this.innerHTML);
-        spanEl.innerText = '[' + (this.CITATIONS.length) + ']';
+        spanEl.innerText = '[' + CITATIONS.length + ']';
         shadow.appendChild(spanEl);
     }
 

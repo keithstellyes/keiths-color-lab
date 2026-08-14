@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8"></meta>
+    <script src="/components/opengl-canvas.js" defer></script>
+    <script src="/components/image-filter.js" defer></script>
+    <script src="/components/citations.js" defer></script>
+    <script src="/components/page-controls.js" defer></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <!-- needed for image-filter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <p>
+    Let's start with the basics. 1 bit. What can we do with 1 bit color?
+    But how do we do that? Let's try a simple naive algorithm. For this case,
+    we assume our pixels are three-tuples of red, green, blue in the range 0.0 ... 1.0.
+    It's what graphics code sometimes like.
+    </p>
+    <p>
+    <b>Naive 1-bit grayscale</b></br>
+    Every pixel is either white or black based on a given <i>in</i> pixel.</br>
+    \(y = \frac{in.red + in.green + in.blue}{3} \) </br>
+    output pixel \(=\)
+    \(\begin{cases}
+    white &amp; y \geq 0.5 \\
+    black &amp; y \leq 0.5
+    \end{cases}\)
+    </p>
+    <image-filter vertex-shader="/shaders/texture.vert"
+                  fragment-shader="/shaders/1bit-grayscale.frag">
+    </image-filter>
+    <p>
+    There's a few ways we can improve this.
+    <ul>
+        <li>1. Red, green, and blue are not all just as sensitive to human eyes.</li>
+        <li>2. 0.5 currently is <i>not</i> half of perceived brightness from humans <cite-intext>https://surma.dev/things/ditherpunk/</cite-intext></li>
+        <li>3. We can try dithering to simulate colors in-between</li>
+        Let's go through these one-by-one.
+    </ul>
+    </p>
+    <p>
+        Let's talk about red, green, and blue sensitivity. They are not all just as sensitive. Different co-efficients are applied to them.
+        (TODO: write more)
+        For now, let's multiply by red by 0.2627 green by 0.6780 blue by 0.0593 per ITU-R Rec. 2020.
+
+        <image-filter vertex-shader="/shaders/texture.vert"
+                      fragment-shader="/shaders/1bit-grayscale-2020.frag">
+        </image-filter>
+
+    </p>
+    <next-page>
+        001.html
+    </next-page>
+
+    <hr></hr>
+    <cite-biblio></cite-biblio>
+</body>
