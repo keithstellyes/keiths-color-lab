@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8"></meta>
-    <script src="/components/opengl-canvas.js" defer></script>
-    <script src="/components/image-filter.js" defer></script>
-    <script src="/components/citations.js" defer></script>
-    <script src="/components/page-controls.js" defer></script>
+    <script src="../components/opengl-canvas.js" defer></script>
+    <script src="../components/image-filter.js" defer></script>
+    <script src="../components/citations.js" defer></script>
+    <script src="../components/page-controls.js" defer></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <!-- needed for image-filter -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
     <p>
     </p>
-    <image-filter id="nbits" vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/nbits-grayscale.frag">
+    <image-filter id="nbits" vertex-shader="../shaders/texture.vert"
+                  fragment-shader="../shaders/nbits-grayscale.frag">
     </image-filter>
     <fieldset id="bitsControl">
         <legend>bits of gray</legend>

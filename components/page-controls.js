@@ -11,7 +11,7 @@ class NextPage extends HTMLElement {
         `;
         shadow.appendChild(styleEl);
         const aEl = document.createElement("a");
-        aEl.setAttribute("href", "/journey/" + this.textContent.trim());
+        aEl.setAttribute("href", this.textContent.trim());
         aEl.innerText = "NEXT";
         shadow.appendChild(aEl);
     }

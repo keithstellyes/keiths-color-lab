@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8"></meta>
-    <script src="/components/opengl-canvas.js" defer></script>
-    <script src="/components/image-filter.js" defer></script>
-    <script src="/components/citations.js" defer></script>
-    <script src="/components/page-controls.js" defer></script>
+    <script src="../components/opengl-canvas.js" defer></script>
+    <script src="../components/image-filter.js" defer></script>
+    <script src="../components/citations.js" defer></script>
+    <script src="../components/page-controls.js" defer></script>
     <!-- needed for image-filter -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
     <p>
@@ -56,8 +56,8 @@
     <i>interactive</i>. What fun is a lab where you can't break things?
     Upload an image below to see it in action!
     </p>
-    <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/texture.frag">
+    <image-filter vertex-shader="../shaders/texture.vert"
+                  fragment-shader="../shaders/texture.frag">
     </image-filter>
     <p>
     Ok, maybe it isn't <i>that</i> interesting, yet. But we gotta start somewhere :)

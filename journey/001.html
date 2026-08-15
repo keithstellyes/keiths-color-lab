@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8"></meta>
-    <script src="/components/opengl-canvas.js" defer></script>
-    <script src="/components/image-filter.js" defer></script>
-    <script src="/components/citations.js" defer></script>
-    <script src="/components/page-controls.js" defer></script>
+    <script src="../components/opengl-canvas.js" defer></script>
+    <script src="../components/image-filter.js" defer></script>
+    <script src="../components/citations.js" defer></script>
+    <script src="../components/page-controls.js" defer></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <!-- needed for image-filter -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
     <p>
@@ -27,8 +27,8 @@
     black &amp; y \leq 0.5
     \end{cases}\)
     </p>
-    <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/1bit-grayscale.frag"
+    <image-filter vertex-shader="../shaders/texture.vert"
+                  fragment-shader="../shaders/1bit-grayscale.frag"
                   id="filterNaive">
     </image-filter>
     <p>
@@ -46,8 +46,8 @@
     set that matches the primaries sRGB images are actually stored in. (Coefficients are gamut-specific: Rec. 2020
     uses 0.2627/0.6780/0.0593, but those describe a wider gamut than anything you're likely to upload here.)
     </p>
-    <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/nbits-grayscale.frag"
+    <image-filter vertex-shader="../shaders/texture.vert"
+                  fragment-shader="../shaders/nbits-grayscale.frag"
                   id="filter709NoDither">
     </image-filter>
 
@@ -57,8 +57,8 @@
     you can accept dithering is where we alternate between off and on in a "gray" region to approximate that in-between color.
     We can get more clever, but for now here's a naive "random" dither, where we adjust the prior algorithm, but add a random adjustment of +- to each y.
     </p>
-    <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/nbits-grayscale.frag"
+    <image-filter vertex-shader="../shaders/texture.vert"
+                  fragment-shader="../shaders/nbits-grayscale.frag"
                   id="filter709Dither">
     </image-filter>
 
