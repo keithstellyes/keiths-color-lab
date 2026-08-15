@@ -1,12 +1,18 @@
+const DEFAULT_WIDTH = 310;
+const DEFAULT_HEIGHT = 310;
+
 class OpenGLCanvas extends HTMLElement {
-    constructor() {
+    constructor({
+        width = DEFAULT_WIDTH,
+        height = DEFAULT_HEIGHT
+    } = {}) {
         super();
 
         const shadow = this.attachShadow({ mode: "open" });
 
         this.canvas = document.createElement("canvas");
-        this.canvas.width = 310;
-        this.canvas.height = 310;
+        this.canvas.width = Number(this.getAttribute("width")) || width;
+        this.canvas.height = Number(this.getAttribute("height")) || height;
         shadow.appendChild(this.canvas);
         const styleEl = document.createElement("style");
         styleEl.innerText = `
@@ -33,6 +39,23 @@ class OpenGLCanvas extends HTMLElement {
 
     connectedCallback() {
         this.#loadShaders();
+    }
+
+    get width() {
+        return this.canvas.width;
+    }
+
+    // Resizing clears the drawing buffer, so redraw after setting
+    set width(width) {
+        this.canvas.width = width;
+    }
+
+    get height() {
+        return this.canvas.height;
+    }
+
+    set height(height) {
+        this.canvas.height = height;
     }
 
     async #loadShaders() {
