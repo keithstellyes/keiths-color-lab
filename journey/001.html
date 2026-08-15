@@ -41,11 +41,12 @@
     <p>
     Let's talk about red, green, and blue sensitivity. They are not all just as sensitive. Different co-efficients are applied to them.
     (TODO: write more)
-    For now, let's multiply by red by 0.2627 green by 0.6780 blue by 0.0593 per ITU-R Rec. 2020.
-
+    For now, let's multiply red by 0.2126, green by 0.7152, and blue by 0.0722 per ITU-R Rec. 709, which is the
+    set that matches the primaries sRGB images are actually stored in. (Coefficients are gamut-specific: Rec. 2020
+    uses 0.2627/0.6780/0.0593, but those describe a wider gamut than anything you're likely to upload here.)
     </p>
     <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/1bit-grayscale-2020.frag">
+                  fragment-shader="/shaders/1bit-grayscale-709.frag">
     </image-filter>
 
     <p>
@@ -55,11 +56,11 @@
     We can get more clever, but for now here's a naive "random" dither, where we adjust the prior algorithm, but add a random adjustment of +- to each y.
     </p>
     <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/1bit-grayscale-2020-random-dither.frag">
+                  fragment-shader="/shaders/1bit-grayscale-709-random-dither.frag">
     </image-filter>
 
     <next-page>
-        001.html
+        002.html
     </next-page>
 
     <hr/>

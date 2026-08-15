@@ -1,5 +1,4 @@
 #version 300 es
-precision mediump float;
 
 in vec2 fragUV;
 
@@ -9,5 +8,8 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = texture(u_texture, fragUV);
+    // texture() decoded sRGB to linear on the way in, so this has to encode
+    // on the way back out or the "unmodified" image comes out too dark.
+    vec4 sampled = texture(u_texture, fragUV);
+    FragColor = vec4(linearToSrgb(sampled.rgb), sampled.a);
 }

@@ -1,6 +1,55 @@
 const DEFAULT_WIDTH = 310;
 const DEFAULT_HEIGHT = 310;
 
+// Prepended to every fragment shader so the colorspace helpers only exist in
+// one place. highp is declared up front because sRGB encoding does a pow();
+// a shader is still free to drop back to mediump for its own declarations.
+const FRAGMENT_PRELUDE = `precision highp float;
+
+// Rec. 709 / sRGB relative-luminance weights. Uploaded images are sRGB, so
+// these are the coefficients that match their primaries. Rec. 2020's
+// 0.2627/0.6780/0.0593 are for a wider gamut and are the wrong weights here.
+const vec3 LUMINANCE_709 = vec3(0.2126, 0.7152, 0.0722);
+
+// Textures are uploaded as SRGB8_ALPHA8, so texture() already hands back
+// LINEAR light. Weighting linear values gives relative luminance (Y); the
+// same weights against encoded values would give luma (Y'), a different
+// quantity despite the identical numbers.
+float luminance(vec3 linearRgb)
+{
+    return dot(linearRgb, LUMINANCE_709);
+}
+
+// The default drawing buffer has no automatic sRGB encode -- whatever we
+// write out is read back as an sRGB code value. So any result that is not
+// exactly 0.0 or 1.0 has to be encoded here or it displays far too dark.
+vec3 linearToSrgb(vec3 c)
+{
+    return mix(12.92 * c,
+               1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055,
+               step(vec3(0.0031308), c));
+}
+
+float linearToSrgb(float c)
+{
+    return linearToSrgb(vec3(c)).r;
+}
+`;
+
+const FRAGMENT_PRELUDE_LINES = FRAGMENT_PRELUDE.split("\n").length - 1;
+
+// #version has to stay the very first thing in a GLSL ES 3.00 shader, so the
+// prelude slots in directly after it rather than at the top of the file.
+function withFragmentPrelude(source) {
+    const version = source.match(/^\s*#version[^\n]*\n/);
+
+    if (!version) {
+        return FRAGMENT_PRELUDE + source;
+    }
+
+    return version[0] + FRAGMENT_PRELUDE + source.slice(version[0].length);
+}
+
 class OpenGLCanvas extends HTMLElement {
     constructor({
         width = DEFAULT_WIDTH,
@@ -35,10 +84,19 @@ class OpenGLCanvas extends HTMLElement {
         this.vertexCount = 0;
         this.vertexStride = 0;
         this.vertexLayout = null;
+
+        // name -> float, re-applied on every draw so uniforms can be set
+        // before the shaders have finished loading
+        this.floatUniforms = new Map();
     }
 
     connectedCallback() {
         this.#loadShaders();
+    }
+
+    // True once there is something to draw with
+    get ready() {
+        return Boolean(this.program && this.vertexLayout);
     }
 
     get width() {
@@ -111,6 +169,10 @@ class OpenGLCanvas extends HTMLElement {
         gl.bufferData(gl.ARRAY_BUFFER, vertices, usage);
     }
 
+    uniform1f(name, value) {
+        this.floatUniforms.set(name, value);
+    }
+
     draw(mode = this.gl.TRIANGLES) {
         if (!this.program) {
             throw new Error("Shaders have not finished loading.");
@@ -154,6 +216,18 @@ class OpenGLCanvas extends HTMLElement {
             offset += size * FLOAT_BYTES;
         }
 
+        for (const [name, value] of this.floatUniforms) {
+            const location = gl.getUniformLocation(this.program, name);
+
+            if (location === null) {
+                throw new Error(
+                    `Uniform "${name}" not found in shader.`
+                );
+            }
+
+            gl.uniform1f(location, value);
+        }
+
         gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 
         gl.clearColor(0, 0, 0, 1);
@@ -162,7 +236,7 @@ class OpenGLCanvas extends HTMLElement {
         gl.drawArrays(mode, 0, this.vertexCount);
     }
 
-    #createShader(type, source) {
+    #createShader(type, source, lineOffset = 0) {
         const gl = this.gl;
 
         const shader = gl.createShader(type);
@@ -173,7 +247,12 @@ class OpenGLCanvas extends HTMLElement {
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             const log = gl.getShaderInfoLog(shader);
             gl.deleteShader(shader);
-            throw new Error(log);
+            throw new Error(
+                lineOffset
+                    ? `${log}\n(${lineOffset} lines of shared prelude were ` +
+                      `prepended; subtract that from the reported line numbers)`
+                    : log
+            );
         }
 
         return shader;
@@ -234,7 +313,8 @@ class OpenGLCanvas extends HTMLElement {
 
         const fragmentShader = this.#createShader(
             gl.FRAGMENT_SHADER,
-            fragmentSource
+            withFragmentPrelude(fragmentSource),
+            FRAGMENT_PRELUDE_LINES
         );
 
         const program = gl.createProgram();
