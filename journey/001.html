@@ -28,7 +28,8 @@
     \end{cases}\)
     </p>
     <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/1bit-grayscale.frag">
+                  fragment-shader="/shaders/1bit-grayscale.frag"
+                  id="filterNaive">
     </image-filter>
     <p>
     There's a few ways we can improve this.
@@ -46,7 +47,8 @@
     uses 0.2627/0.6780/0.0593, but those describe a wider gamut than anything you're likely to upload here.)
     </p>
     <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/1bit-grayscale-709.frag">
+                  fragment-shader="/shaders/nbits-grayscale.frag"
+                  id="filter709NoDither">
     </image-filter>
 
     <p>
@@ -56,7 +58,8 @@
     We can get more clever, but for now here's a naive "random" dither, where we adjust the prior algorithm, but add a random adjustment of +- to each y.
     </p>
     <image-filter vertex-shader="/shaders/texture.vert"
-                  fragment-shader="/shaders/1bit-grayscale-709-random-dither.frag">
+                  fragment-shader="/shaders/nbits-grayscale.frag"
+                  id="filter709Dither">
     </image-filter>
 
     <next-page>
@@ -65,4 +68,15 @@
 
     <hr/>
     <cite-biblio></cite-biblio>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const filter709NoDither = document.getElementById("filter709NoDither");
+            filter709NoDither.uniform1f("u_bits", 1);
+            filter709NoDither.uniform1f("u_dither", 0.0);
+            const filter709Dither = document.getElementById("filter709Dither");
+            filter709Dither.uniform1f("u_bits", 1);
+            filter709Dither.uniform1f("u_dither", 1.0);
+        });
+    </script>
 </body>
