@@ -23,6 +23,10 @@
         <label><input type="radio" name="bits" value="4"/> 4</label>
         <label><input type="radio" name="bits" value="8"/> 8</label>
     </fieldset>
+    <fieldset>
+        <legend> Apply random dither? </legend>
+        <input type="checkbox" id="dither"/>
+    </fieldset>
     <script>
         // The component scripts are deferred, so the element is not upgraded
         // until parsing finishes -- wait for it before touching uniforms.
@@ -51,6 +55,11 @@
                     setBits(Number(radio.value));
                 }
             }
+            const ditherEl = document.getElementById("dither");
+            ditherEl.addEventListener("change", (e) => {
+                filter.uniform1f("u_dither", e.target.checked ? 1.0 : 0.0);
+                filter.draw();
+            });
         });
     </script>
     <p>
