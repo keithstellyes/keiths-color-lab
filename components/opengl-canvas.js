@@ -8,7 +8,6 @@ const FRAGMENT_PRELUDE = `precision highp float;
 
 // Rec. 709 / sRGB relative-luminance weights. Uploaded images are sRGB, so
 // these are the coefficients that match their primaries. Rec. 2020's
-// 0.2627/0.6780/0.0593 are for a wider gamut and are the wrong weights here.
 const vec3 LUMINANCE_709 = vec3(0.2126, 0.7152, 0.0722);
 
 // Textures are uploaded as SRGB8_ALPHA8, so texture() already hands back
@@ -21,8 +20,7 @@ float luminance(vec3 linearRgb)
 }
 
 // The default drawing buffer has no automatic sRGB encode -- whatever we
-// write out is read back as an sRGB code value. So any result that is not
-// exactly 0.0 or 1.0 has to be encoded here or it displays far too dark.
+// write out is read back as an sRGB code value.
 vec3 linearToSrgb(vec3 c)
 {
     return mix(12.92 * c,
@@ -38,8 +36,6 @@ float linearToSrgb(float c)
 
 const FRAGMENT_PRELUDE_LINES = FRAGMENT_PRELUDE.split("\n").length - 1;
 
-// #version has to stay the very first thing in a GLSL ES 3.00 shader, so the
-// prelude slots in directly after it rather than at the top of the file.
 function withFragmentPrelude(source) {
     const version = source.match(/^\s*#version[^\n]*\n/);
 
@@ -94,16 +90,14 @@ class OpenGLCanvas extends HTMLElement {
         this.#loadShaders();
     }
 
-    // True once there is something to draw with
     get ready() {
-        return Boolean(this.program && this.vertexLayout);
+        return this.program && this.vertexLayout;
     }
 
     get width() {
         return this.canvas.width;
     }
 
-    // Resizing clears the drawing buffer, so redraw after setting
     set width(width) {
         this.canvas.width = width;
     }
@@ -263,7 +257,6 @@ class OpenGLCanvas extends HTMLElement {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-        // Images have y=0 at top, but in webgl that is bottom
         gl.pixelStorei(
             gl.UNPACK_FLIP_Y_WEBGL,
             true

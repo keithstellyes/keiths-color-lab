@@ -19,16 +19,8 @@ void main()
 {
     vec4 sampled = texture(u_texture, fragUV);
 
-    // Unlike the plain threshold next door, this one deliberately stays in
-    // LINEAR light. What the eye averages over a patch of alternating black
-    // and white pixels is the linear average, so for the dither to come out
-    // at the right brightness we need P(white) to equal the linear
-    // luminance -- not the encoded value.
     float y = luminance(sampled.rgb);
 
-    // Uniform on +-0.5, which makes P(y + r > 0.5) exactly y. Any smaller
-    // amplitude clips: at +-0.25 everything below 0.25 was forced to black
-    // and everything above 0.75 to white, so only the middle half dithered.
     float r = sin(hash(gl_FragCoord.xy)) / 2.0;
 
     y = y + r;
