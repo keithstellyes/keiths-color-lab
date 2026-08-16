@@ -10,38 +10,83 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
     <link rel="stylesheet" href="../styles.css">
     <style>
-        /* The upload and its filtered copy, side by side. */
-        #pair {
-            display: flex;
+        /* Three channel budgets across, undithered on top and dithered below. */
+        #matrix {
+            display: grid;
+            grid-template-columns: repeat(3, max-content);
             gap: 12px;
         }
     </style>
 </head>
 <body>
-    <p>
-    Let's get into color! Let's start off with 1 bit of red, 1 of green, and 1 of blue.
+    <p id="mobileWarning" class="callout" hidden>
+    This page is not supported on mobile.
     </p>
+    <p>
+    Let's get into color! Now every channel gets its own bit budget: 3 bits
+    total (one each), then a byte split 3-3-2, then the 5-6-5 sixteen-bit
+    layout. Upload an image and compare, undithered on top and dithered below.
+    </p>
+    <image-filter id="source" vertex-shader="../shaders/texture.vert"
+                  fragment-shader="../shaders/texture.frag">
+    </image-filter>
 
-    <div id="pair">
-        <image-filter id="source" vertex-shader="../shaders/texture.vert"
-                      fragment-shader="../shaders/texture.frag">
+    <div id="matrix">
+        <image-filter no-upload title="1,1,1" data-red="1" data-green="1" data-blue="1" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-rgb.frag">
         </image-filter>
-        <image-filter id="filtered" no-upload title="1 bit each"
+        <image-filter no-upload title="3,3,2" data-red="3" data-green="3" data-blue="2" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-rgb.frag">
+        </image-filter>
+        <image-filter no-upload title="5,6,5" data-red="5" data-green="6" data-blue="5" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-rgb.frag">
+        </image-filter>
+
+        <image-filter no-upload title="1,1,1 dithered" data-red="1" data-green="1" data-blue="1" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-rgb.frag">
+        </image-filter>
+        <image-filter no-upload title="3,3,2 dithered" data-red="3" data-green="3" data-blue="2" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-rgb.frag">
+        </image-filter>
+        <image-filter no-upload title="5,6,5 dithered" data-red="5" data-green="6" data-blue="5" data-dither="1"
                       vertex-shader="../shaders/texture.vert"
                       fragment-shader="../shaders/nbits-rgb.frag">
         </image-filter>
     </div>
     <script>
+        // For now, we are considering tablets to not be mobile
+        // Claude:
+        // userAgentData.mobile is the only non-sniffing answer, but it's
+        // Chromium-only; everywhere else fall back to the user agent string.
+        const isMobile = () => navigator.userAgentData
+            ? navigator.userAgentData.mobile
+            : /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        if (isMobile()) {
+            document.getElementById("mobileWarning").hidden = false;
+        }
+    </script>
+    <script>
         document.addEventListener("DOMContentLoaded", () => {
             const source = document.getElementById("source");
-            const filtered = document.getElementById("filtered");
+            const cells = document.querySelectorAll("#matrix image-filter");
 
-            filtered.uniform1f("u_redBits", 1);
-            filtered.uniform1f("u_greenBits", 1);
-            filtered.uniform1f("u_blueBits", 1);
+            for (const cell of cells) {
+                cell.uniform1f("u_redBits", Number(cell.dataset.red));
+                cell.uniform1f("u_greenBits", Number(cell.dataset.green));
+                cell.uniform1f("u_blueBits", Number(cell.dataset.blue));
+                cell.uniform1f("u_dither", Number(cell.dataset.dither));
+            }
 
             source.addEventListener("image", event => {
-                filtered.setImage(event.detail);
+                for (const cell of cells) {
+                    cell.setImage(event.detail);
+                }
             });
         });
     </script>
