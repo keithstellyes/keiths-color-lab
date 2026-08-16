@@ -91,6 +91,9 @@ class OpenGLCanvas extends HTMLElement {
         // before the shaders have finished loading
         this.floatUniforms = new Map();
 
+        // name -> Float32Array of packed vec3s, same deal
+        this.vec3Uniforms = new Map();
+
         // Remembered so a devicePixelRatio change can repaint what was last
         // drawn; resizing the buffer clears it.
         this.lastDrawMode = null;
@@ -219,6 +222,15 @@ class OpenGLCanvas extends HTMLElement {
         this.floatUniforms.set(name, value);
     }
 
+    // One vec3, or a whole array of them packed end to end. An array uniform
+    // is set through the name of the array itself, not name[0].
+    uniform3fv(name, values) {
+        this.vec3Uniforms.set(
+            name,
+            values instanceof Float32Array ? values : new Float32Array(values)
+        );
+    }
+
     draw(mode = this.gl.TRIANGLES) {
         if (!this.program) {
             throw new Error("Shaders have not finished loading.");
@@ -263,15 +275,11 @@ class OpenGLCanvas extends HTMLElement {
         }
 
         for (const [name, value] of this.floatUniforms) {
-            const location = gl.getUniformLocation(this.program, name);
+            gl.uniform1f(this.#uniformLocation(name), value);
+        }
 
-            if (location === null) {
-                throw new Error(
-                    `Uniform "${name}" not found in shader.`
-                );
-            }
-
-            gl.uniform1f(location, value);
+        for (const [name, values] of this.vec3Uniforms) {
+            gl.uniform3fv(this.#uniformLocation(name), values);
         }
 
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -282,6 +290,18 @@ class OpenGLCanvas extends HTMLElement {
         gl.drawArrays(mode, 0, this.vertexCount);
 
         this.lastDrawMode = mode;
+    }
+
+    #uniformLocation(name) {
+        const location = this.gl.getUniformLocation(this.program, name);
+
+        if (location === null) {
+            throw new Error(
+                `Uniform "${name}" not found in shader.`
+            );
+        }
+
+        return location;
     }
 
     #createShader(type, source, lineOffset = 0) {
