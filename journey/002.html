@@ -67,11 +67,11 @@
         </image-filter>
     </div>
     <script>
-        // userAgentData.mobile is the only non-sniffing answer, but it's
-        // Chromium-only; everywhere else fall back to the user agent string.
-        const isMobile = () => navigator.userAgentData
-            ? navigator.userAgentData.mobile
-            : /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        // userAgentData.mobile is the non-sniffing answer, but it's
+        // Chromium-only and reports false for tablets, which are just as
+        // cramped for a 4-wide grid. So the user agent string gets a look too.
+        const isMobile = () => Boolean(navigator.userAgentData?.mobile)
+            || /Mobi|Android|iPhone|iPad|iPod|Tablet/i.test(navigator.userAgent);
 
         if (isMobile()) {
             document.getElementById("mobileWarning").hidden = false;
