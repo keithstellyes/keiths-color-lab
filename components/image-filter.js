@@ -5,7 +5,6 @@ class ImageFilter extends OpenGLCanvas {
         this.addEventListener("ready", () => {
             this.vertexData = {
                 data: [
-                    // position
                     -1, -1,
                     1, -1,
                     -1,  1,
@@ -54,8 +53,6 @@ class ImageFilter extends OpenGLCanvas {
                     `;
         this.shadowRoot.appendChild(styleElement);
 
-        // A grid of filters showing the same photo only needs one uploader, so
-        // the rest opt out and get their image assigned by the page.
         const uploadable = !this.hasAttribute("no-upload");
 
         this.titleEl = document.createElement("h1");
@@ -92,8 +89,6 @@ class ImageFilter extends OpenGLCanvas {
             await image.decode();
             this.setImage(image);
 
-            // The bitmap is already decoded, so anyone listening can still
-            // upload it as a texture after the object URL goes away.
             this.dispatchEvent(new CustomEvent("image", { detail: image }));
             URL.revokeObjectURL(image.src);
 
@@ -106,8 +101,6 @@ class ImageFilter extends OpenGLCanvas {
         this.titleEl.innerText = title;
     }
 
-    // Shaders load asynchronously, so an image handed over before the program
-    // links gets painted as soon as it is there.
     setImage(image) {
         this.textureData = image;
 

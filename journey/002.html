@@ -67,6 +67,8 @@
         </image-filter>
     </div>
     <script>
+        // For now, we are considering tablets to not be mobile
+        // Claude:
         // userAgentData.mobile is the only non-sniffing answer, but it's
         // Chromium-only; everywhere else fall back to the user agent string.
         const isMobile = () => navigator.userAgentData
@@ -78,8 +80,6 @@
         }
     </script>
     <script>
-        // The component scripts are deferred, so the elements are not upgraded
-        // until parsing finishes -- wait for that before touching uniforms.
         document.addEventListener("DOMContentLoaded", () => {
             const source = document.getElementById("source");
             const cells = document.querySelectorAll("#matrix image-filter");
@@ -89,8 +89,6 @@
                 cell.uniform1f("u_dither", Number(cell.dataset.dither));
             }
 
-            // Only the polaroid up top takes an upload; it hands the decoded
-            // image to every cell so the whole matrix shows the same photo.
             source.addEventListener("image", event => {
                 for (const cell of cells) {
                     cell.setImage(event.detail);
