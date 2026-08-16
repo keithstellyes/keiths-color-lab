@@ -53,14 +53,26 @@ class ImageFilter extends OpenGLCanvas {
             }
                     `;
         this.shadowRoot.appendChild(styleElement);
+
+        // A grid of filters showing the same photo only needs one uploader, so
+        // the rest opt out and get their image assigned by the page.
+        const uploadable = !this.hasAttribute("no-upload");
+
+        this.titleEl = document.createElement("h1");
+        this.titleEl.innerText = this.getAttribute("title")
+            || (uploadable ? "Click to upload image" : "");
+        this.shadowRoot.append(this.titleEl);
+
+        if (!uploadable) {
+            this.canvas.style.cursor = "default";
+            return;
+        }
+
         const imageInput = document.createElement("input");
         imageInput.id = "imageInput";
         imageInput.type = "file";
         imageInput.accept = "image/*";
         this.shadowRoot.prepend(imageInput);
-        this.titleEl = document.createElement("h1");
-        this.titleEl.innerText = this.getAttribute("title") || "Click to upload image";
-        this.shadowRoot.append(this.titleEl);
 
         this.canvas.title = "Click to choose an image";
         this.canvas.addEventListener("click", () => imageInput.click());
