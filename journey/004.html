@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8"></meta>
+    <script src="../components/opengl-canvas.js" defer></script>
+    <script src="../components/image-filter.js" defer></script>
+    <script src="../components/palette.js" defer></script>
+    <script src="../components/citations.js" defer></script>
+    <script src="../components/page-controls.js" defer></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <!-- needed for image-filter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Four palette sizes across, undithered on top and dithered below. */
+        #matrix {
+            display: grid;
+            grid-template-columns: repeat(4, max-content);
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <p id="mobileWarning" class="callout" hidden>
+    This page is not supported on mobile.
+    </p>
+    <p id="webgpuWarning" class="callout" hidden>
+    This page needs WebGPU to pick the palettes, and this browser could not
+    give it to us.
+    </p>
+    <p>
+    Every page so far has spent its bits the same way: an evenly spaced grid,
+    whether that was levels of gray or a bit budget per channel. But no image
+    uses the whole color cube. A photo of a forest is mostly greens, and an
+    even grid still spends most of its entries on colors that photo does not
+    contain anywhere.
+    </p>
+    <p>
+    So let's spend them somewhere else. A pixel no longer stores a color, it
+    stores an <i>index</i> into a palette, and the palette gets chosen for the
+    image in front of us. \(n\) bits buys \(2^n\) entries: 1 bit is two colors,
+    8 bits is the 256 of a GIF. The choosing is k-means, which drops
+    \(2^n\) points into the image's colors and shuffles them around until each
+    one sits in the middle of the colors nearest to it, and then every pixel is
+    painted with whichever entry it ended up closest to. It runs on your GPU,
+    so you can hand it a whole photo.
+    </p>
+    <p>
+    Same arrangement as before -- undithered on top, dithered below -- though
+    the dither had to change. There is no fixed step size to add noise against
+    anymore, so instead each pixel picks between the two palette entries it is
+    closest to, in the ratio of how far it sits between them.
+    </p>
+    <image-filter id="source" vertex-shader="../shaders/texture.vert"
+                  fragment-shader="../shaders/texture.frag">
+    </image-filter>
+
+    <div id="matrix">
+        <image-filter no-upload title="1 bit" data-bits="1" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/palette-match.frag">
+        </image-filter>
+        <image-filter no-upload title="2 bits" data-bits="2" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/palette-match.frag">
+        </image-filter>
+        <image-filter no-upload title="4 bits" data-bits="4" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/palette-match.frag">
+        </image-filter>
+        <image-filter no-upload title="8 bits" data-bits="8" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/palette-match.frag">
+        </image-filter>
+
+        <image-filter no-upload title="1 bit, dithered" data-bits="1" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/palette-match.frag">
+        </image-filter>
+        <image-filter no-upload title="2 bits, dithered" data-bits="2" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/palette-match.frag">
+        </image-filter>
+        <image-filter no-upload title="4 bits, dithered" data-bits="4" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/palette-match.frag">
+        </image-filter>
+        <image-filter no-upload title="8 bits, dithered" data-bits="8" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/palette-match.frag">
+        </image-filter>
+    </div>
+    <script>
+        // For now, we are considering tablets to not be mobile
+        // Claude:
+        // userAgentData.mobile is the only non-sniffing answer, but it's
+        // Chromium-only; everywhere else fall back to the user agent string.
+        const isMobile = () => navigator.userAgentData
+            ? navigator.userAgentData.mobile
+            : /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        if (isMobile()) {
+            document.getElementById("mobileWarning").hidden = false;
+        }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const source = document.getElementById("source");
+            const cells = document.querySelectorAll("#matrix image-filter");
+
+            for (const cell of cells) {
+                cell.uniform1f("u_dither", Number(cell.dataset.dither));
+            }
+
+            const budgets = [...new Set(
+                [...cells].map(cell => Number(cell.dataset.bits))
+            )];
+
+            source.addEventListener("image", async event => {
+                const image = event.detail;
+
+                // Both cells in a column show the same palette, so it gets
+                // computed once per bit budget. One column at a time, so the
+                // cheap ones show up while 256 colors are still clustering.
+                for (const bits of budgets) {
+                    let palette;
+
+                    try {
+                        palette = await computePalette(image, bits);
+                    } catch (error) {
+                        document.getElementById("webgpuWarning").hidden = false;
+                        throw error;
+                    }
+
+                    for (const cell of cells) {
+                        if (Number(cell.dataset.bits) !== bits) {
+                            continue;
+                        }
+
+                        cell.uniform3fv("u_palette", palette);
+                        cell.uniform1f("u_paletteSize", palette.length / 3);
+                        cell.setImage(image);
+                    }
+                }
+            });
+        });
+    </script>
+
+    <hr/>
+    <cite-biblio></cite-biblio>
+</body>
