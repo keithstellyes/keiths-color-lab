@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8"></meta>
+    <script src="../components/opengl-canvas.js" defer></script>
+    <script src="../components/image-filter.js" defer></script>
+    <script src="../components/citations.js" defer></script>
+    <script src="../components/page-controls.js" defer></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <!-- needed for image-filter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* The upload and its filtered copy, side by side. */
+        #pair {
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <p>
+    Let's get into color! Let's start off with 1 bit of red, 1 of green, and 1 of blue.
+    </p>
+
+    <div id="pair">
+        <image-filter id="source" vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/texture.frag">
+        </image-filter>
+        <image-filter id="filtered" no-upload title="1 bit each"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-rgb.frag">
+        </image-filter>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const source = document.getElementById("source");
+            const filtered = document.getElementById("filtered");
+
+            filtered.uniform1f("u_redBits", 1);
+            filtered.uniform1f("u_greenBits", 1);
+            filtered.uniform1f("u_blueBits", 1);
+
+            source.addEventListener("image", event => {
+                filtered.setImage(event.detail);
+            });
+        });
+    </script>
+    <next-page>
+        004.html
+    </next-page>
+
+    <hr/>
+    <cite-biblio></cite-biblio>
+</body>
