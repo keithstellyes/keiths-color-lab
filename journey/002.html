@@ -9,27 +9,63 @@
     <!-- needed for image-filter -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Kalam">
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Four bit depths across, undithered on top and dithered below. */
+        #matrix {
+            display: grid;
+            grid-template-columns: repeat(4, max-content);
+            gap: 12px;
+        }
+    </style>
 </head>
 <body>
     <p id="mobileWarning" class="callout" hidden>
     This page is not supported on mobile.
     </p>
     <p>
+    One bit of gray is only the beginning. Upload a photo below and the whole
+    matrix fills in at once: 1, 2, 4, and 8 bits of gray, each one shown
+    without dithering and then with the random dither from the last page.
     </p>
-    <image-filter id="nbits" vertex-shader="../shaders/texture.vert"
-                  fragment-shader="../shaders/nbits-grayscale.frag">
+    <image-filter id="source" vertex-shader="../shaders/texture.vert"
+                  fragment-shader="../shaders/texture.frag">
     </image-filter>
-    <fieldset id="bitsControl">
-        <legend>bits of gray</legend>
-        <label><input type="radio" name="bits" value="1" checked/> 1</label>
-        <label><input type="radio" name="bits" value="2"/> 2</label>
-        <label><input type="radio" name="bits" value="4"/> 4</label>
-        <label><input type="radio" name="bits" value="8"/> 8</label>
-    </fieldset>
-    <fieldset>
-        <legend> Apply random dither? </legend>
-        <input type="checkbox" id="dither"/>
-    </fieldset>
+
+    <div id="matrix">
+        <image-filter no-upload title="1 bit" data-bits="1" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-grayscale.frag">
+        </image-filter>
+        <image-filter no-upload title="2 bits" data-bits="2" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-grayscale.frag">
+        </image-filter>
+        <image-filter no-upload title="4 bits" data-bits="4" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-grayscale.frag">
+        </image-filter>
+        <image-filter no-upload title="8 bits" data-bits="8" data-dither="0"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-grayscale.frag">
+        </image-filter>
+
+        <image-filter no-upload title="1 bit, dithered" data-bits="1" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-grayscale.frag">
+        </image-filter>
+        <image-filter no-upload title="2 bits, dithered" data-bits="2" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-grayscale.frag">
+        </image-filter>
+        <image-filter no-upload title="4 bits, dithered" data-bits="4" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-grayscale.frag">
+        </image-filter>
+        <image-filter no-upload title="8 bits, dithered" data-bits="8" data-dither="1"
+                      vertex-shader="../shaders/texture.vert"
+                      fragment-shader="../shaders/nbits-grayscale.frag">
+        </image-filter>
+    </div>
     <script>
         // userAgentData.mobile is the only non-sniffing answer, but it's
         // Chromium-only; everywhere else fall back to the user agent string.
@@ -42,41 +78,26 @@
         }
     </script>
     <script>
-        // The component scripts are deferred, so the element is not upgraded
-        // until parsing finishes -- wait for it before touching uniforms.
+        // The component scripts are deferred, so the elements are not upgraded
+        // until parsing finishes -- wait for that before touching uniforms.
         document.addEventListener("DOMContentLoaded", () => {
-            const filter = document.getElementById("nbits");
-            const radios = document
-                .getElementById("bitsControl")
-                .querySelectorAll("input[name=bits]");
+            const source = document.getElementById("source");
+            const cells = document.querySelectorAll("#matrix image-filter");
 
-            const setBits = bits => {
-                filter.uniform1f("u_bits", bits);
-
-                // Nothing to redraw until the shaders have loaded and an
-                // image has been picked
-                if (filter.ready) {
-                    filter.draw();
-                }
-            };
-
-            for (const radio of radios) {
-                radio.addEventListener("change", () => {
-                    setBits(Number(radio.value));
-                });
-
-                if (radio.checked) {
-                    setBits(Number(radio.value));
-                }
+            for (const cell of cells) {
+                cell.uniform1f("u_bits", Number(cell.dataset.bits));
+                cell.uniform1f("u_dither", Number(cell.dataset.dither));
             }
-            const ditherEl = document.getElementById("dither");
-            ditherEl.addEventListener("change", (e) => {
-                filter.uniform1f("u_dither", e.target.checked ? 1.0 : 0.0);
-                filter.draw();
+
+            // Only the polaroid up top takes an upload; it hands the decoded
+            // image to every cell so the whole matrix shows the same photo.
+            source.addEventListener("image", event => {
+                for (const cell of cells) {
+                    cell.setImage(event.detail);
+                }
             });
         });
     </script>
-    <p>
     <hr/>
     <cite-biblio></cite-biblio>
 </body>

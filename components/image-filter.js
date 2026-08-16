@@ -90,8 +90,11 @@ class ImageFilter extends OpenGLCanvas {
             const image = new Image();
             image.src = URL.createObjectURL(file);
             await image.decode();
-            this.textureData = image;
-            this.draw();
+            this.setImage(image);
+
+            // The bitmap is already decoded, so anyone listening can still
+            // upload it as a texture after the object URL goes away.
+            this.dispatchEvent(new CustomEvent("image", { detail: image }));
             URL.revokeObjectURL(image.src);
 
             // So picking the same file twice still fires "change"
@@ -101,6 +104,18 @@ class ImageFilter extends OpenGLCanvas {
     }
     setTitle(title) {
         this.titleEl.innerText = title;
+    }
+
+    // Shaders load asynchronously, so an image handed over before the program
+    // links gets painted as soon as it is there.
+    setImage(image) {
+        this.textureData = image;
+
+        if (this.ready) {
+            this.draw();
+        } else {
+            this.addEventListener("ready", () => this.draw(), { once: true });
+        }
     }
     connectedCallback() {
         super.connectedCallback();
