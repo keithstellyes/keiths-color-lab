@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
+    <p id="mobileWarning" class="callout" hidden>
+    This page is not supported on mobile.
+    </p>
     <p>
     </p>
     <image-filter id="nbits" vertex-shader="../shaders/texture.vert"
@@ -27,6 +30,17 @@
         <legend> Apply random dither? </legend>
         <input type="checkbox" id="dither"/>
     </fieldset>
+    <script>
+        // userAgentData.mobile is the only non-sniffing answer, but it's
+        // Chromium-only; everywhere else fall back to the user agent string.
+        const isMobile = () => navigator.userAgentData
+            ? navigator.userAgentData.mobile
+            : /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        if (isMobile()) {
+            document.getElementById("mobileWarning").hidden = false;
+        }
+    </script>
     <script>
         // The component scripts are deferred, so the element is not upgraded
         // until parsing finishes -- wait for it before touching uniforms.
