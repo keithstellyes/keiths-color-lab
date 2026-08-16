@@ -56,8 +56,14 @@ class OpenGLCanvas extends HTMLElement {
         const shadow = this.attachShadow({ mode: "open" });
 
         this.canvas = document.createElement("canvas");
-        this.canvas.width = Number(this.getAttribute("width")) || width;
-        this.canvas.height = Number(this.getAttribute("height")) || height;
+
+        // The canvas is laid out in CSS pixels but the drawing buffer is sized
+        // in device pixels, so a 2x display gets a 2x buffer instead of a
+        // 310x310 image the compositor has to upscale.
+        this.cssWidth = Number(this.getAttribute("width")) || width;
+        this.cssHeight = Number(this.getAttribute("height")) || height;
+        this.#resizeDrawingBuffer();
+
         shadow.appendChild(this.canvas);
         const styleEl = document.createElement("style");
         styleEl.innerText = `
@@ -84,30 +90,76 @@ class OpenGLCanvas extends HTMLElement {
         // name -> float, re-applied on every draw so uniforms can be set
         // before the shaders have finished loading
         this.floatUniforms = new Map();
+
+        // Remembered so a devicePixelRatio change can repaint what was last
+        // drawn; resizing the buffer clears it.
+        this.lastDrawMode = null;
+
+        this.#watchDevicePixelRatio();
     }
 
     connectedCallback() {
         this.#loadShaders();
     }
 
+    // devicePixelRatio changes when the window moves between displays or the
+    // page is zoomed. There is no event for it, but a resolution media query
+    // flips as soon as the current ratio stops matching.
+    #watchDevicePixelRatio() {
+        const onChange = () => {
+            this.#resizeDrawingBuffer();
+
+            if (this.lastDrawMode !== null) {
+                this.draw(this.lastDrawMode);
+            }
+
+            this.#watchDevicePixelRatio();
+        };
+
+        matchMedia(
+            `(resolution: ${window.devicePixelRatio}dppx)`
+        ).addEventListener("change", onChange, { once: true });
+    }
+
+    #resizeDrawingBuffer() {
+        const ratio = window.devicePixelRatio || 1;
+
+        this.canvas.width = Math.round(this.cssWidth * ratio);
+        this.canvas.height = Math.round(this.cssHeight * ratio);
+        this.canvas.style.width = `${this.cssWidth}px`;
+        this.canvas.style.height = `${this.cssHeight}px`;
+    }
+
     get ready() {
         return this.program && this.vertexLayout;
     }
 
+    // width/height are the CSS size; drawingBufferWidth/Height are the device
+    // pixels actually rendered.
     get width() {
-        return this.canvas.width;
+        return this.cssWidth;
     }
 
     set width(width) {
-        this.canvas.width = width;
+        this.cssWidth = width;
+        this.#resizeDrawingBuffer();
     }
 
     get height() {
-        return this.canvas.height;
+        return this.cssHeight;
     }
 
     set height(height) {
-        this.canvas.height = height;
+        this.cssHeight = height;
+        this.#resizeDrawingBuffer();
+    }
+
+    get drawingBufferWidth() {
+        return this.canvas.width;
+    }
+
+    get drawingBufferHeight() {
+        return this.canvas.height;
     }
 
     async #loadShaders() {
@@ -222,12 +274,14 @@ class OpenGLCanvas extends HTMLElement {
             gl.uniform1f(location, value);
         }
 
-        gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         gl.drawArrays(mode, 0, this.vertexCount);
+
+        this.lastDrawMode = mode;
     }
 
     #createShader(type, source, lineOffset = 0) {
