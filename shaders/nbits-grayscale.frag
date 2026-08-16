@@ -25,8 +25,6 @@ void main()
     if(u_dither) {
         float r = 0.0;
         r = sin(hash(gl_FragCoord.xy, sampled)) / 2.0;
-        // reduce its influence, from testing it seems to look a bit better this way
-        r /= 4.0;
         y += r;
     }
 
